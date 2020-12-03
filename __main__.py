@@ -16,7 +16,6 @@ transparent_block_color = pygame.Color(0, 50, 60)
 border_color = pygame.Color(240, 240, 240)
 
 shape_list = [
-    # O block.
     [
         [True, True, False, False],
         [True, True, False, False],
@@ -30,10 +29,22 @@ shape_list = [
         [False, False, False, False],
     ],
     [
+        [False, True, True, False],
+        [True, True, False, False],
+        [False, False, False, False],
+        [False, False, False, False],
+    ],
+    [
         [True, False, False, False],
         [True, False, False, False],
         [True, False, False, False],
         [True, False, False, False],
+    ],
+    [
+        [True, True, True, True],
+        [False, False, False, False],
+        [False, False, False, False],
+        [False, False, False, False],
     ],
     [
         [True, True, True, False],
@@ -41,23 +52,37 @@ shape_list = [
         [True, False, False, False],
         [False, False, False, False],
     ],
+    [
+        [True, True, True, False],
+        [False, False, True, False],
+        [False, False, True, False],
+        [False, False, False, False],
+    ],
+    [
+        [False, False, True, False],
+        [False, False, True, False],
+        [True, True, True, False],
+        [False, False, False, False],
+    ],
+    [
+        [True, False, False, False],
+        [True, False, False, False],
+        [True, True, True, False],
+        [False, False, False, False],
+    ],
 ]
-shape_selection_count = 3
-
-board[5][2] = True
-board[5][3] = True
-board[5][4] = True
-board[6][3] = True
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("DokuDoku")
 
-shape_selection = []
-for i in range(shape_selection_count):
-    shape_selection.append(random.choice(shape_list))
-
+shape_selection_count = 3
+shape_selection = random.sample(shape_list, 3)
 selected_shape = None
+
+lines_cleared = 0
+
+font = pygame.font.SysFont(None, 24)
 
 def draw_shape(shape, left, top, color):
     for row in range(4):
@@ -98,9 +123,12 @@ def place_shape(event):
     selected_shape = None
 
     clear_lines()
-
+    global shape_selection
+    shape_selection = random.sample(shape_list, 3)
 
 def clear_lines():
+    global lines_cleared
+
     # Clear rows
     for row in range(board_size):
         row_clear = True
@@ -111,6 +139,7 @@ def clear_lines():
         if row_clear:
             for col in range(board_size):
                 board[row][col] = False
+            lines_cleared += 1
 
     # Clear cols
     for col in range(board_size):
@@ -122,7 +151,7 @@ def clear_lines():
         if col_clear:
             for row in range(board_size):
                 board[row][col] = False
-
+            lines_cleared += 1
 
 def is_placeable():
     x, y = pygame.mouse.get_pos()
@@ -179,5 +208,9 @@ while running:
 
         # Draw selected shape on cursor
         draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_color)
+
+    # Draw score
+    score = font.render(str(lines_cleared), True, border_color)
+    screen.blit(score, (4, 4))
 
     pygame.display.flip()
