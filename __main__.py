@@ -124,6 +124,8 @@ while running:
                     select_shape(event)
                 elif is_placeable():
                     place_shape(event)
+            elif event.button == 3:
+                selected_shape = None
 
     screen.fill(background_color)
 
