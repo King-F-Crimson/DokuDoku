@@ -1,13 +1,13 @@
 import pygame
 import random
 
+from shapes import shape_list
+
 random.seed(8)
 
 block_size = 40
 board_size = 10
 board = [[False for i in range(board_size)] for j in range(board_size)]
-
-print(board[0])
 
 screen_width = block_size * (board_size + 2 + 5)
 screen_height = block_size * (board_size + 2 + 5)
@@ -16,63 +16,6 @@ background_color = pygame.Color(0, 0, 0)
 block_color = pygame.Color(0, 200, 240)
 transparent_block_color = pygame.Color(0, 50, 60)
 border_color = pygame.Color(240, 240, 240)
-
-shape_list = [
-    [
-        [True, True, False, False],
-        [True, True, False, False],
-        [False, False, False, False],
-        [False, False, False, False],
-    ],
-    [
-        [True, True, False, False],
-        [False, True, True, False],
-        [False, False, False, False],
-        [False, False, False, False],
-    ],
-    [
-        [False, True, True, False],
-        [True, True, False, False],
-        [False, False, False, False],
-        [False, False, False, False],
-    ],
-    [
-        [True, False, False, False],
-        [True, False, False, False],
-        [True, False, False, False],
-        [True, False, False, False],
-    ],
-    [
-        [True, True, True, True],
-        [False, False, False, False],
-        [False, False, False, False],
-        [False, False, False, False],
-    ],
-    [
-        [True, True, True, False],
-        [True, False, False, False],
-        [True, False, False, False],
-        [False, False, False, False],
-    ],
-    [
-        [True, True, True, False],
-        [False, False, True, False],
-        [False, False, True, False],
-        [False, False, False, False],
-    ],
-    [
-        [False, False, True, False],
-        [False, False, True, False],
-        [True, True, True, False],
-        [False, False, False, False],
-    ],
-    [
-        [True, False, False, False],
-        [True, False, False, False],
-        [True, True, True, False],
-        [False, False, False, False],
-    ],
-]
 
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -83,7 +26,6 @@ shape_selection = random.sample(shape_list, 3)
 selected_shape = None
 
 lines_cleared = 0
-
 font = pygame.font.SysFont(None, 24)
 
 def draw_shape(shape, left, top, color):
