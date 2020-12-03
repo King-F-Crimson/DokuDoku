@@ -7,6 +7,8 @@ block_size = 40
 board_size = 10
 board = [[False for i in range(board_size)] for j in range(board_size)]
 
+print(board[0])
+
 screen_width = block_size * (board_size + 2 + 5)
 screen_height = block_size * (board_size + 2 + 5)
 
@@ -91,11 +93,7 @@ def draw_shape(shape, left, top, color):
                 pygame.draw.rect(screen, color, pygame.Rect(left + col * block_size, top + row * block_size, block_size, block_size))
                 pygame.draw.rect(screen, border_color, pygame.Rect(left + col * block_size, top + row * block_size, block_size, block_size), 1)
 
-def select_shape(event):
-    x, y = event.pos
-    block_x = x // block_size
-    block_y = y // block_size
-
+def select_shape(event, block_x, block_y):
     # Check if cursor y is out of range
     if block_y <= board_size + 1 or block_y >= board_size + 5:
         return
@@ -109,11 +107,7 @@ def select_shape(event):
     elif block_x >= 11 and block_x <= 15:
         selected_shape = shape_selection[2]
 
-def place_shape(event):
-    x, y = event.pos
-    block_x = x // block_size
-    block_y = y // block_size
-
+def place_shape(event, block_x, block_y):
     global selected_shape
     for row in range(4):
         for col in range(4):
@@ -125,6 +119,10 @@ def place_shape(event):
     clear_lines()
     global shape_selection
     shape_selection = random.sample(shape_list, 3)
+
+    if check_game_end():
+        global game_over
+        game_over = True
 
 def clear_lines():
     global lines_cleared
@@ -153,14 +151,13 @@ def clear_lines():
                 board[row][col] = False
             lines_cleared += 1
 
-def is_placeable():
-    x, y = pygame.mouse.get_pos()
-    block_x = x // block_size
-    block_y = y // block_size
+def is_placeable(shape, block_x, block_y):
+    if block_x == 0 or block_y == 0:
+        return False
 
     for row in range(4):
         for col in range(4):
-            if selected_shape[row][col]:
+            if shape[row][col]:
                 try:
                     if board[block_y - 1 + row][block_x - 1 + col]:
                         return False
@@ -169,19 +166,34 @@ def is_placeable():
 
     return True
 
+def check_game_end():
+    for shape in shape_selection:
+        for row in range(board_size):
+            for col in range(board_size):
+                if is_placeable(shape, 1 + row, 1 + col):
+                    return False
+
+    return True
+
 running = True
+game_over = False
 while running:
+    x, y = pygame.mouse.get_pos()
+    block_x = x // block_size
+    block_y = y // block_size
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if selected_shape == None:
-                    select_shape(event)
-                elif is_placeable():
-                    place_shape(event)
-            elif event.button == 3:
-                selected_shape = None
+        if not game_over:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    if selected_shape == None:
+                        select_shape(event, block_x, block_y)
+                    elif is_placeable(selected_shape, block_x, block_y):
+                        place_shape(event, block_x, block_y)
+                elif event.button == 3:
+                    selected_shape = None
 
     screen.fill(background_color)
 
@@ -198,12 +210,8 @@ while running:
 
     # Draw selected shape
     if selected_shape != None:
-        x, y = pygame.mouse.get_pos()
-        block_x = x // block_size
-        block_y = y // block_size
-
         # Draw placement guide if placeable
-        if is_placeable():
+        if is_placeable(selected_shape, block_x, block_y):
             draw_shape(selected_shape, block_x * block_size, block_y * block_size, transparent_block_color)
 
         # Draw selected shape on cursor
@@ -211,6 +219,11 @@ while running:
 
     # Draw score
     score = font.render(str(lines_cleared), True, border_color)
-    screen.blit(score, (4, 4))
+    screen.blit(score, (8, 4))
+
+    # Draw game over
+    if game_over:
+        game_over_text = font.render("Game over!", True, border_color)
+        screen.blit(game_over_text, (8, 20))
 
     pygame.display.flip()
