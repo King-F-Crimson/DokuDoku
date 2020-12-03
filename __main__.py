@@ -97,6 +97,33 @@ def place_shape(event):
 
     selected_shape = None
 
+    clear_lines()
+
+
+def clear_lines():
+    # Clear rows
+    for row in range(board_size):
+        row_clear = True
+        for col in range(board_size):
+            if not board[row][col]:
+                row_clear = False
+                break
+        if row_clear:
+            for col in range(board_size):
+                board[row][col] = False
+
+    # Clear cols
+    for col in range(board_size):
+        col_clear = True
+        for row in range(board_size):
+            if not board[row][col]:
+                col_clear = False
+                break
+        if col_clear:
+            for row in range(board_size):
+                board[row][col] = False
+
+
 def is_placeable():
     x, y = pygame.mouse.get_pos()
     block_x = x // block_size
