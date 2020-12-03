@@ -102,6 +102,15 @@ def is_placeable():
     block_x = x // block_size
     block_y = y // block_size
 
+    for row in range(4):
+        for col in range(4):
+            if selected_shape[row][col]:
+                try:
+                    if board[block_y - 1 + row][block_x - 1 + col]:
+                        return False
+                except IndexError:
+                    return False
+
     return True
 
 running = True
