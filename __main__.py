@@ -144,8 +144,9 @@ while running:
         block_x = x // block_size
         block_y = y // block_size
 
-        # Draw placement guide
-        draw_shape(selected_shape, block_x * block_size, block_y * block_size, transparent_block_color)
+        # Draw placement guide if placeable
+        if is_placeable():
+            draw_shape(selected_shape, block_x * block_size, block_y * block_size, transparent_block_color)
 
         # Draw selected shape on cursor
         draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_color)
