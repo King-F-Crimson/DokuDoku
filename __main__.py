@@ -9,6 +9,7 @@ random.seed(time.time())
 block_size = 40
 board_size = 10
 board = [[False for i in range(board_size)] for j in range(board_size)]
+board_color = [[0 for i in range(board_size)] for j in range(board_size)]
 
 screen_width = block_size * (board_size + 2 + 5)
 screen_height = block_size * (board_size + 2 + 5)
@@ -18,7 +19,7 @@ border_color = pygame.Color(240, 240, 240)
 
 # Set block colors from HSLA
 block_colors = []
-block_color_count = 12
+block_color_count = 6
 color_range = 360 / block_color_count
 for i in range(block_color_count):
     color = pygame.Color(0, 0, 0)
@@ -58,11 +59,12 @@ def select_shape(event, block_x, block_y):
     except IndexError:
         return None
 
-def place_shape(event, block_x, block_y):
+def place_shape(event, block_x, block_y, color):
     for row in range(4):
         for col in range(4):
             if selected_shape[row][col]:
                 board[block_y - 1 + row][block_x - 1 + col] = True
+                board_color[block_y - 1 + row][block_x - 1 + col] = color
 
 def clear_lines():
     lines_cleared = 0
@@ -128,6 +130,7 @@ def check_game_end():
 
 running = True
 game_over = False
+color_index = 0
 while running:
     # Get position in block size
     x, y = pygame.mouse.get_pos()
@@ -145,12 +148,13 @@ while running:
                         selected_shape = select_shape(event, block_x, block_y)
                     # Place shape
                     elif is_placeable(selected_shape, block_x, block_y):
-                        place_shape(event, block_x, block_y)
+                        place_shape(event, block_x, block_y, color_index)
                         shape_selection.remove(selected_shape)
                         selected_shape = None
                         lines_cleared += clear_lines()
                         if len(shape_selection) == 0:
                             shape_selection = random.sample(shape_list, shape_selection_count)
+                            color_index = (color_index + 1) % block_color_count
                         game_over = check_game_end()
                 # Remove selected block using right-click
                 elif event.button == 3:
@@ -164,21 +168,21 @@ while running:
     for row in range(board_size):
         for col in range(board_size):
             if board[row][col]:
-                pygame.draw.rect(screen, block_colors[0], pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size))
+                pygame.draw.rect(screen, block_colors[board_color[row][col]], pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size))
             pygame.draw.rect(screen, border_color, pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size), 1)
 
     # Draw shape selection
     for i in range(len(shape_selection)):
-        draw_shape(shape_selection[i], (i * 5 + 1) * block_size, (board_size + 2) * block_size, block_colors[0])
+        draw_shape(shape_selection[i], (i * 5 + 1) * block_size, (board_size + 2) * block_size, block_colors[color_index])
 
     # Draw selected shape
     if selected_shape != None:
         # Draw placement guide if placeable
         if is_placeable(selected_shape, block_x, block_y):
-            draw_shape(selected_shape, block_x * block_size, block_y * block_size, block_colors[0].lerp(background_color, 0.75))
+            draw_shape(selected_shape, block_x * block_size, block_y * block_size, block_colors[color_index].lerp(background_color, 0.75))
 
         # Draw selected shape on cursor
-        draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_colors[0])
+        draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_colors[color_index])
 
     # Draw score
     score = font.render(str(lines_cleared), True, border_color)
