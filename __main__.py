@@ -237,7 +237,7 @@ while running:
 
         if event.type == pygame.MOUSEWHEEL:
             scroll_x += event.y * (max_shape_size + 1) * block_size
-            scroll_x = min(0, max(scroll_x, -(max_shape_size + 1) * block_size * len(shape_list)))
+            scroll_x = min(0, max(scroll_x, -(max_shape_size + 1) * block_size * (len(shape_list) - shape_selection_count)))
 
     # Drawing
     # Reset screen with background color
@@ -269,6 +269,10 @@ while running:
     if not random_shapes:
         for i, shape in enumerate(shape_list):
             draw_shape(shape, block_size * (i * (max_shape_size + 1) + 1) + scroll_x, block_size * (board_size + max_shape_size + 4), block_colors[color_index])
+
+    # Draw scroll
+    scroll_text = font.render(str(-scroll_x // ((max_shape_size + 1) * block_size)), True, border_color)
+    screen.blit(scroll_text, (8, block_size * (board_size + max_shape_size + 3)))
 
     # Draw score
     score_text = font.render("Score: " + str(score), True, border_color)
