@@ -69,7 +69,8 @@ def place_shape(event, block_x, block_y):
 def clear_lines():
     lines_cleared = 0
 
-    # Clear rows
+    # Find rows to be cleared
+    clear_rows = []
     for row in range(board_size):
         row_clear = True
         for col in range(board_size):
@@ -77,11 +78,11 @@ def clear_lines():
                 row_clear = False
                 break
         if row_clear:
-            for col in range(board_size):
-                board[row][col] = False
+            clear_rows.append(row)
             lines_cleared += 1
 
-    # Clear cols
+    # Find cols to be cleared
+    clear_cols = []
     for col in range(board_size):
         col_clear = True
         for row in range(board_size):
@@ -89,9 +90,17 @@ def clear_lines():
                 col_clear = False
                 break
         if col_clear:
-            for row in range(board_size):
-                board[row][col] = False
+            clear_cols.append(col)
             lines_cleared += 1
+
+    # Defer clearing so + shaped clear is cleared properly
+    for row in clear_rows:
+        for col in range(board_size):
+            board[row][col] = False
+
+    for col in clear_cols:
+        for row in range(board_size):
+            board[row][col] = False
 
     return lines_cleared
 
