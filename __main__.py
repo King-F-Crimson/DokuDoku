@@ -1,9 +1,10 @@
 import pygame
 import random
+import time
 
 from shapes import shape_list
 
-random.seed(8)
+random.seed(time.time())
 
 block_size = 40
 board_size = 10
@@ -17,15 +18,15 @@ block_color = pygame.Color(0, 200, 240)
 transparent_block_color = pygame.Color(0, 50, 60)
 border_color = pygame.Color(240, 240, 240)
 
-pygame.init()
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("DokuDoku")
-
 shape_selection_count = 3
 shape_selection = random.sample(shape_list, 3)
 selected_shape = None
 
 lines_cleared = 0
+
+pygame.init()
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("DokuDoku")
 font = pygame.font.SysFont(None, 24)
 
 def draw_shape(shape, left, top, color):
@@ -38,36 +39,24 @@ def draw_shape(shape, left, top, color):
 def select_shape(event, block_x, block_y):
     # Check if cursor y is out of range
     if block_y <= board_size + 1 or block_y >= board_size + 5:
-        return
+        return None
 
     # Check which shape is selected by X
-    global selected_shape
     if block_x >= 1 and block_x <= 5:
-        selected_shape = shape_selection[0]
+        return shape_selection[0]
     elif block_x >= 6 and block_x <= 10:
-        selected_shape = shape_selection[1]
+        return shape_selection[1]
     elif block_x >= 11 and block_x <= 15:
-        selected_shape = shape_selection[2]
+        return shape_selection[2]
 
 def place_shape(event, block_x, block_y):
-    global selected_shape
     for row in range(4):
         for col in range(4):
             if selected_shape[row][col]:
                 board[block_y - 1 + row][block_x - 1 + col] = True
 
-    selected_shape = None
-
-    clear_lines()
-    global shape_selection
-    shape_selection = random.sample(shape_list, 3)
-
-    if check_game_end():
-        global game_over
-        game_over = True
-
 def clear_lines():
-    global lines_cleared
+    lines_cleared = 0
 
     # Clear rows
     for row in range(board_size):
@@ -92,6 +81,8 @@ def clear_lines():
             for row in range(board_size):
                 board[row][col] = False
             lines_cleared += 1
+
+    return lines_cleared
 
 def is_placeable(shape, block_x, block_y):
     if block_x == 0 or block_y == 0:
@@ -131,9 +122,13 @@ while running:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     if selected_shape == None:
-                        select_shape(event, block_x, block_y)
+                        selected_shape = select_shape(event, block_x, block_y)
                     elif is_placeable(selected_shape, block_x, block_y):
                         place_shape(event, block_x, block_y)
+                        selected_shape = None
+                        lines_cleared += clear_lines()
+                        shape_selection = random.sample(shape_list, 3)
+                        game_over = check_game_end()
                 elif event.button == 3:
                     selected_shape = None
 
