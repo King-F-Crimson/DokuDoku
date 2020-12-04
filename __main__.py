@@ -111,6 +111,7 @@ def check_game_end():
 running = True
 game_over = False
 while running:
+    # Get position in block size
     x, y = pygame.mouse.get_pos()
     block_x = x // block_size
     block_y = y // block_size
@@ -121,17 +122,22 @@ while running:
         if not game_over:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
+                    # Select shape
                     if selected_shape == None:
                         selected_shape = select_shape(event, block_x, block_y)
+                    # Place shape
                     elif is_placeable(selected_shape, block_x, block_y):
                         place_shape(event, block_x, block_y)
                         selected_shape = None
                         lines_cleared += clear_lines()
                         shape_selection = random.sample(shape_list, 3)
                         game_over = check_game_end()
+                # Remove selected block using right-click
                 elif event.button == 3:
                     selected_shape = None
 
+    # Drawing
+    # Reset screen with background color
     screen.fill(background_color)
 
     # Draw blocks
@@ -163,4 +169,7 @@ while running:
         game_over_text = font.render("Game over!", True, border_color)
         screen.blit(game_over_text, (8, 20))
 
+    # Update display
     pygame.display.flip()
+
+pygame.quit()
