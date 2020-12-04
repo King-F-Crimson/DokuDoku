@@ -15,7 +15,7 @@ screen_height = block_size * (board_size + 2 + 5)
 
 background_color = pygame.Color(0, 0, 0)
 block_color = pygame.Color(0, 200, 240)
-transparent_block_color = pygame.Color(0, 50, 60)
+transparent_block_color = block_color.lerp(background_color, 0.75)
 border_color = pygame.Color(240, 240, 240)
 
 shape_selection_count = 3
