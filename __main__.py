@@ -103,11 +103,16 @@ def select_manual_shape(block_x, block_y):
         return None
 
 def place_shape(block_x, block_y, color):
+    block_placed = 0
+
     for row in range(max_shape_size):
         for col in range(max_shape_size):
             if selected_shape[row][col]:
                 board[block_y - 1 + row][block_x - 1 + col] = True
                 board_color[block_y - 1 + row][block_x - 1 + col] = color
+                block_placed += 1
+
+    return block_placed
 
 def clear_lines():
     lines_cleared = 0
@@ -209,13 +214,13 @@ while running:
                         selected_shape = select_shape(block_x, block_y)
                     # Place shape
                     elif is_placeable(selected_shape, block_x, block_y):
-                        place_shape(block_x, block_y, color_index)
+                        block_placed = place_shape(block_x, block_y, color_index)
                         shape_selection.remove(selected_shape)
                         selected_shape = None
 
                         line_count = clear_lines()
                         lines_cleared += line_count
-                        score += (score_per_line[line_count] + score_per_streak[streak])
+                        score += score_per_line[line_count] + score_per_streak[streak] + (block_placed * 10)
                         if (line_count > 0):
                             streak += 1
                         else:
