@@ -28,7 +28,7 @@ for i in range(block_color_count):
     transparent_block_colors.append(color.lerp(background_color, 0.75))
 
 shape_selection_count = 3
-shape_selection = random.sample(shape_list, 3)
+shape_selection = random.sample(shape_list, shape_selection_count)
 selected_shape = None
 
 lines_cleared = 0
@@ -50,13 +50,15 @@ def select_shape(event, block_x, block_y):
     if block_y <= board_size + 1 or block_y >= board_size + 5:
         return None
 
+    # Check if cursor x is in between gap
+    if block_x % 5 == 0:
+        return None
+
     # Check which shape is selected by X
-    if block_x >= 1 and block_x <= 5:
-        return shape_selection[0]
-    elif block_x >= 6 and block_x <= 10:
-        return shape_selection[1]
-    elif block_x >= 11 and block_x <= 15:
-        return shape_selection[2]
+    try:
+        return shape_selection[block_x // 5]
+    except IndexError:
+        return None
 
 def place_shape(event, block_x, block_y):
     for row in range(4):
@@ -139,7 +141,7 @@ while running:
                         place_shape(event, block_x, block_y)
                         selected_shape = None
                         lines_cleared += clear_lines()
-                        shape_selection = random.sample(shape_list, 3)
+                        shape_selection = random.sample(shape_list, shape_selection_count)
                         game_over = check_game_end()
                 # Remove selected block using right-click
                 elif event.button == 3:
