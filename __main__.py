@@ -30,7 +30,31 @@ shape_selection = []
 selected_shape = None
 random_shapes = False
 
+score_per_line = [
+    100,
+    300,
+    600,
+    1000,
+    1500,
+    2500
+]
+
+score_per_streak = [
+    0,
+    250,
+    400,
+    550,
+    700,
+    850,
+    1000,
+    1150,
+    1300,
+    1450
+]
+
 lines_cleared = 0
+score = 0
+streak = 0
 
 screen_width = block_size * max((board_size + 2), (shape_selection_count * (max_shape_size + 1) + 1))
 screen_height = block_size * (board_size + (max_shape_size * 2) + 5)
@@ -187,7 +211,15 @@ while running:
                         place_shape(block_x, block_y, color_index)
                         shape_selection.remove(selected_shape)
                         selected_shape = None
-                        lines_cleared += clear_lines()
+
+                        line_count = clear_lines()
+                        lines_cleared += line_count
+                        score += (score_per_line[line_count] + score_per_streak[streak])
+                        if (line_count > 0):
+                            streak += 1
+                        else:
+                            streak = 0
+
                         if len(shape_selection) == 0:
                             color_index = (color_index + 1) % block_color_count
                             if random_shapes:
@@ -237,14 +269,18 @@ while running:
         for i, shape in enumerate(shape_list):
             draw_shape(shape, block_size * (i * (max_shape_size + 1) + 1) + scroll_x, block_size * (board_size + max_shape_size + 4), block_colors[color_index])
 
+    # Draw lines cleared
+    lines_cleared_text = font.render("Lines cleared: " + str(lines_cleared), True, border_color)
+    screen.blit(lines_cleared_text, (8, 4))
+
     # Draw score
-    score = font.render(str(lines_cleared), True, border_color)
-    screen.blit(score, (8, 4))
+    score_text = font.render("Score: " + str(score), True, border_color)
+    screen.blit(score_text, (8, 20))
 
     # Draw game over
     if game_over:
         game_over_text = font.render("Game over!", True, border_color)
-        screen.blit(game_over_text, (8, 20))
+        screen.blit(game_over_text, (8, block_size * (board_size + 1)))
 
     # Update display
     pygame.display.flip()
