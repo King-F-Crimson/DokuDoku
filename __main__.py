@@ -18,14 +18,12 @@ border_color = pygame.Color(240, 240, 240)
 
 # Set block colors from HSLA
 block_colors = []
-transparent_block_colors = []
 block_color_count = 12
 color_range = 360 / block_color_count
 for i in range(block_color_count):
     color = pygame.Color(0, 0, 0)
     color.hsla = (i * color_range, 80, 50, 100)
     block_colors.append(color)
-    transparent_block_colors.append(color.lerp(background_color, 0.75))
 
 shape_selection_count = 3
 shape_selection = random.sample(shape_list, shape_selection_count)
@@ -177,7 +175,7 @@ while running:
     if selected_shape != None:
         # Draw placement guide if placeable
         if is_placeable(selected_shape, block_x, block_y):
-            draw_shape(selected_shape, block_x * block_size, block_y * block_size, transparent_block_colors[0])
+            draw_shape(selected_shape, block_x * block_size, block_y * block_size, block_colors[0].lerp(background_color, 0.75))
 
         # Draw selected shape on cursor
         draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_colors[0])
