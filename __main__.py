@@ -252,9 +252,11 @@ while running:
 
     # Draw shape selection
     for i in range(len(shape_selection)):
-        # Make selected shape not drawn
-        if (shape_selection[i] != selected_shape):
-            draw_shape(shape_selection[i], (i * (max_shape_size + 1) + 1) * block_size, (board_size + 2) * block_size, block_colors[color_index])
+        # Make selection shape transparent when a shape is picked
+        color = block_colors[color_index]
+        if (selected_shape != None):
+            color = color.lerp(background_color, 0.75)
+        draw_shape(shape_selection[i], (i * (max_shape_size + 1) + 1) * block_size, (board_size + 2) * block_size, color)
 
     # Draw selected shape
     if selected_shape != None:
