@@ -139,9 +139,11 @@ while running:
                     # Place shape
                     elif is_placeable(selected_shape, block_x, block_y):
                         place_shape(event, block_x, block_y)
+                        shape_selection.remove(selected_shape)
                         selected_shape = None
                         lines_cleared += clear_lines()
-                        shape_selection = random.sample(shape_list, shape_selection_count)
+                        if len(shape_selection) == 0:
+                            shape_selection = random.sample(shape_list, shape_selection_count)
                         game_over = check_game_end()
                 # Remove selected block using right-click
                 elif event.button == 3:
@@ -159,7 +161,7 @@ while running:
             pygame.draw.rect(screen, border_color, pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size), 1)
 
     # Draw shape selection
-    for i in range(shape_selection_count):
+    for i in range(len(shape_selection)):
         draw_shape(shape_selection[i], (i * 5 + 1) * block_size, (board_size + 2) * block_size, block_colors[0])
 
     # Draw selected shape
