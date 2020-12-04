@@ -14,9 +14,18 @@ screen_width = block_size * (board_size + 2 + 5)
 screen_height = block_size * (board_size + 2 + 5)
 
 background_color = pygame.Color(0, 0, 0)
-block_color = pygame.Color(0, 200, 240)
-transparent_block_color = block_color.lerp(background_color, 0.75)
 border_color = pygame.Color(240, 240, 240)
+
+# Set block colors from HSLA
+block_colors = []
+transparent_block_colors = []
+block_color_count = 12
+color_range = 360 / block_color_count
+for i in range(block_color_count):
+    color = pygame.Color(0, 0, 0)
+    color.hsla = (i * color_range, 80, 50, 100)
+    block_colors.append(color)
+    transparent_block_colors.append(color.lerp(background_color, 0.75))
 
 shape_selection_count = 3
 shape_selection = random.sample(shape_list, 3)
@@ -144,21 +153,21 @@ while running:
     for row in range(board_size):
         for col in range(board_size):
             if board[row][col]:
-                pygame.draw.rect(screen, block_color, pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size))
+                pygame.draw.rect(screen, block_colors[0], pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size))
             pygame.draw.rect(screen, border_color, pygame.Rect((1 + col) * block_size, (1 + row) * block_size, block_size, block_size), 1)
 
     # Draw shape selection
     for i in range(shape_selection_count):
-        draw_shape(shape_selection[i], (i * 5 + 1) * block_size, (board_size + 2) * block_size, block_color)
+        draw_shape(shape_selection[i], (i * 5 + 1) * block_size, (board_size + 2) * block_size, block_colors[0])
 
     # Draw selected shape
     if selected_shape != None:
         # Draw placement guide if placeable
         if is_placeable(selected_shape, block_x, block_y):
-            draw_shape(selected_shape, block_x * block_size, block_y * block_size, transparent_block_color)
+            draw_shape(selected_shape, block_x * block_size, block_y * block_size, transparent_block_colors[0])
 
         # Draw selected shape on cursor
-        draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_color)
+        draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_colors[0])
 
     # Draw score
     score = font.render(str(lines_cleared), True, border_color)
