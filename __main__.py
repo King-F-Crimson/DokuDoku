@@ -31,6 +31,7 @@ selected_shape = None
 random_shapes = False
 
 score_per_line = [
+    0,
     100,
     300,
     600,
@@ -269,18 +270,22 @@ while running:
         for i, shape in enumerate(shape_list):
             draw_shape(shape, block_size * (i * (max_shape_size + 1) + 1) + scroll_x, block_size * (board_size + max_shape_size + 4), block_colors[color_index])
 
-    # Draw lines cleared
-    lines_cleared_text = font.render("Lines cleared: " + str(lines_cleared), True, border_color)
-    screen.blit(lines_cleared_text, (8, 4))
-
     # Draw score
     score_text = font.render("Score: " + str(score), True, border_color)
-    screen.blit(score_text, (8, 20))
+    screen.blit(score_text, (8, 4))
+
+    # Draw lines cleared
+    lines_cleared_text = font.render("Lines: " + str(lines_cleared), True, border_color)
+    screen.blit(lines_cleared_text, (168, 4))
+
+    # Draw streak
+    streak_text = font.render("Streak: " + str(streak), True, border_color)
+    screen.blit(streak_text, (328, 4))
 
     # Draw game over
     if game_over:
         game_over_text = font.render("Game over!", True, border_color)
-        screen.blit(game_over_text, (8, block_size * (board_size + 1)))
+        screen.blit(game_over_text, (8, 20))
 
     # Update display
     pygame.display.flip()
