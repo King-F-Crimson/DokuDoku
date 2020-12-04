@@ -11,8 +11,7 @@ board_size = 10
 board = [[False for i in range(board_size)] for j in range(board_size)]
 board_color = [[0 for i in range(board_size)] for j in range(board_size)]
 
-screen_width = block_size * (board_size + 2 + 5)
-screen_height = block_size * (board_size + 2 + 5)
+max_shape_size = 5
 
 background_color = pygame.Color(0, 0, 0)
 border_color = pygame.Color(240, 240, 240)
@@ -32,36 +31,39 @@ selected_shape = None
 
 lines_cleared = 0
 
+screen_width = block_size * max((board_size + 2), (shape_selection_count * (max_shape_size + 1) + 1))
+screen_height = block_size * (board_size + max_shape_size + 3)
+
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("DokuDoku")
 font = pygame.font.SysFont(None, 24)
 
 def draw_shape(shape, left, top, color):
-    for row in range(4):
-        for col in range(4):
+    for row in range(max_shape_size):
+        for col in range(max_shape_size):
             if shape[row][col]:
                 pygame.draw.rect(screen, color, pygame.Rect(left + col * block_size, top + row * block_size, block_size, block_size))
                 pygame.draw.rect(screen, border_color, pygame.Rect(left + col * block_size, top + row * block_size, block_size, block_size), 1)
 
 def select_shape(event, block_x, block_y):
     # Check if cursor y is out of range
-    if block_y <= board_size + 1 or block_y >= board_size + 5:
+    if block_y <= board_size + 1 or block_y >= board_size + (max_shape_size + 1):
         return None
 
     # Check if cursor x is in between gap
-    if block_x % 5 == 0:
+    if block_x % (max_shape_size + 1) == 0:
         return None
 
     # Check which shape is selected by X
     try:
-        return shape_selection[block_x // 5]
+        return shape_selection[block_x // (max_shape_size + 1)]
     except IndexError:
         return None
 
 def place_shape(event, block_x, block_y, color):
-    for row in range(4):
-        for col in range(4):
+    for row in range(max_shape_size):
+        for col in range(max_shape_size):
             if selected_shape[row][col]:
                 board[block_y - 1 + row][block_x - 1 + col] = True
                 board_color[block_y - 1 + row][block_x - 1 + col] = color
@@ -108,8 +110,8 @@ def is_placeable(shape, block_x, block_y):
     if block_x == 0 or block_y == 0:
         return False
 
-    for row in range(4):
-        for col in range(4):
+    for row in range(max_shape_size):
+        for col in range(max_shape_size):
             if shape[row][col]:
                 try:
                     if board[block_y - 1 + row][block_x - 1 + col]:
@@ -173,7 +175,7 @@ while running:
 
     # Draw shape selection
     for i in range(len(shape_selection)):
-        draw_shape(shape_selection[i], (i * 5 + 1) * block_size, (board_size + 2) * block_size, block_colors[color_index])
+        draw_shape(shape_selection[i], (i * (max_shape_size + 1) + 1) * block_size, (board_size + 2) * block_size, block_colors[color_index])
 
     # Draw selected shape
     if selected_shape != None:
