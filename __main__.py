@@ -30,6 +30,12 @@ shape_selection = []
 selected_shape = None
 random_shapes = False
 
+shape_selection = []
+if random_shapes:
+    shape_selection = random.sample(shape_list, shape_selection_count)
+
+manual_shape_mode = not random_shapes
+
 score_per_line = [
     0,
     100,
@@ -59,10 +65,6 @@ streak = 0
 
 screen_width = block_size * max((board_size + 2), (shape_selection_count * (max_shape_size + 1) + 1))
 screen_height = block_size * (board_size + (max_shape_size * 2) + 5)
-
-shape_selection = []
-if random_shapes:
-    shape_selection = random.sample(shape_list, shape_selection_count)
 
 scroll_x = 0
 
@@ -111,11 +113,14 @@ def get_manual_shape_index(block_x, block_y):
     return (block_x // (max_shape_size + 1)) + (-scroll_x // block_size // (max_shape_size + 1))
 
 def select_manual_shape(index):
+    global manual_shape_mode
+
     shape = shape_list[index]
 
     shape_selection.append(shape)
     if len(shape_selection) == shape_selection_count:
         game_over = check_game_end()
+        manual_shape_mode = False
 
 def put_shape_in_board(board_x, board_y, color):
     num_block_placed = 0
@@ -136,6 +141,7 @@ def place_shape(board_x, board_y):
     global lines_cleared
     global streak
     global score
+    global manual_shape_mode
 
     num_block_placed = put_shape_in_board(board_x, board_y, color_index)
     shape_selection.remove(selected_shape)
@@ -153,6 +159,8 @@ def place_shape(board_x, board_y):
         color_index = (color_index + 1) % block_color_count
         if random_shapes:
             shape_selection = random.sample(shape_list, shape_selection_count)
+        else:
+            manual_shape_mode = True
     else:
         game_over = check_game_end()
 
@@ -233,12 +241,17 @@ def handle_event(event):
         x, y = pygame.mouse.get_pos()
         block_x, block_y = x // block_size, y // block_size
         board_x, board_y = block_x - 1, block_y - 1
-        # Select manual shape
-        if not random_shapes and len(shape_selection) != shape_selection_count:
+
+        if manual_shape_mode:
+            # Select manual shape
             if event.button == 1:
                 index = get_manual_shape_index(block_x, block_y)
                 if (index != None):
                     select_manual_shape(index)
+            # Remove last manual shape.
+            if event.button == 3:
+                if (shape_selection):
+                    shape_selection.pop()
         else:
             if event.button == 1:
                 # Select shape
