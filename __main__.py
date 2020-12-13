@@ -6,6 +6,8 @@ from shapes import shape_list
 
 random.seed(time.time())
 
+random_shapes = True
+
 block_size = 40
 board_size = 10
 board = [[False for i in range(board_size)] for j in range(board_size)]
@@ -28,7 +30,6 @@ for i in range(block_color_count):
 shape_selection_count = 3
 shape_selection = []
 selected_shape = None
-random_shapes = False
 
 shape_selection = []
 if random_shapes:
@@ -64,7 +65,10 @@ score = 0
 streak = 0
 
 screen_width = block_size * max((board_size + 2), (shape_selection_count * (max_shape_size + 1) + 1))
-screen_height = block_size * (board_size + (max_shape_size * 2) + 5)
+if random_shapes:
+    screen_height = block_size * (board_size + max_shape_size + 3)
+else:
+    screen_height = block_size * (board_size + (max_shape_size * 2) + 5)
 
 scroll_x = 0
 
@@ -114,6 +118,7 @@ def get_manual_shape_index(block_x, block_y):
 
 def select_manual_shape(index):
     global manual_shape_mode
+    global game_over
 
     shape = shape_list[index]
 
@@ -142,6 +147,7 @@ def place_shape(board_x, board_y):
     global streak
     global score
     global manual_shape_mode
+    global game_over
 
     num_block_placed = put_shape_in_board(board_x, board_y, color_index)
     shape_selection.remove(selected_shape)
@@ -317,8 +323,9 @@ while running:
             draw_shape(shape, block_size * (i * (max_shape_size + 1) + 1) + scroll_x, block_size * (board_size + max_shape_size + 4), block_colors[color_index])
 
     # Draw scroll text
-    scroll_text = font.render(str(-scroll_x // ((max_shape_size + 1) * block_size)), True, border_color)
-    screen.blit(scroll_text, (8, block_size * (board_size + max_shape_size + 3)))
+    if not random_shapes:
+        scroll_text = font.render(str(-scroll_x // ((max_shape_size + 1) * block_size)), True, border_color)
+        screen.blit(scroll_text, (8, block_size * (board_size + max_shape_size + 3)))
 
     # Draw score
     score_text = font.render("Score: " + str(score), True, border_color)
