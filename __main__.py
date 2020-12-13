@@ -100,7 +100,7 @@ def select_shape(index):
 
 def get_manual_shape_index(block_x, block_y):
     # Check if cursor y is out of range
-    if block_y <= board_size + 1 or block_y >= board_size + (2 * (max_shape_size + 1)):
+    if block_y <= board_size + max_shape_size + 3 or block_y >= board_size + (2 * max_shape_size) + 4:
         return None
 
     # Check if cursor x is in between gap
@@ -298,12 +298,12 @@ while running:
         # Draw selected shape on cursor
         draw_shape(selected_shape, x - (block_size / 2), y - (block_size / 2), block_colors[color_index])
 
-    # Draw all shapes
+    # Draw all manual selection shapes
     if not random_shapes:
         for i, shape in enumerate(shape_list):
             draw_shape(shape, block_size * (i * (max_shape_size + 1) + 1) + scroll_x, block_size * (board_size + max_shape_size + 4), block_colors[color_index])
 
-    # Draw scroll
+    # Draw scroll text
     scroll_text = font.render(str(-scroll_x // ((max_shape_size + 1) * block_size)), True, border_color)
     screen.blit(scroll_text, (8, block_size * (board_size + max_shape_size + 3)))
 
