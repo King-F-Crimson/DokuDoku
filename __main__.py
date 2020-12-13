@@ -60,6 +60,16 @@ streak = 0
 screen_width = block_size * max((board_size + 2), (shape_selection_count * (max_shape_size + 1) + 1))
 screen_height = block_size * (board_size + (max_shape_size * 2) + 5)
 
+shape_selection = []
+if random_shapes:
+    shape_selection = random.sample(shape_list, shape_selection_count)
+
+scroll_x = 0
+
+color_index = 0
+running = True
+game_over = False
+
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("DokuDoku")
@@ -72,7 +82,7 @@ def draw_shape(shape, left, top, color):
                 pygame.draw.rect(screen, color, pygame.Rect(left + col * block_size, top + row * block_size, block_size, block_size))
                 pygame.draw.rect(screen, border_color, pygame.Rect(left + col * block_size, top + row * block_size, block_size, block_size), 1)
 
-def select_shape(block_x, block_y):
+def get_shape_index(block_x, block_y):
     # Check if cursor y is out of range
     if block_y <= board_size + 1 or block_y >= board_size + (max_shape_size + 1):
         return None
@@ -82,12 +92,13 @@ def select_shape(block_x, block_y):
         return None
 
     # Check which shape is selected by X
-    try:
-        return shape_selection[block_x // (max_shape_size + 1)]
-    except IndexError:
-        return None
+    return block_x // (max_shape_size + 1)
 
-def select_manual_shape(block_x, block_y):
+def select_shape(index):
+    global selected_shape
+    selected_shape = shape_selection[index]
+
+def get_manual_shape_index(block_x, block_y):
     # Check if cursor y is out of range
     if block_y <= board_size + 1 or block_y >= board_size + (2 * (max_shape_size + 1)):
         return None
@@ -97,22 +108,53 @@ def select_manual_shape(block_x, block_y):
         return None
 
     # Check which shape is selected by X
-    try:
-        return shape_list[(block_x // (max_shape_size + 1)) + (-scroll_x // block_size // (max_shape_size + 1))]
-    except IndexError:
-        return None
+    return (block_x // (max_shape_size + 1)) + (-scroll_x // block_size // (max_shape_size + 1))
 
-def place_shape(block_x, block_y, color):
-    block_placed = 0
+def select_manual_shape(index):
+    shape = shape_list[index]
+
+    shape_selection.append(shape)
+    if len(shape_selection) == shape_selection_count:
+        game_over = check_game_end()
+
+def put_shape_in_board(board_x, board_y, color):
+    num_block_placed = 0
 
     for row in range(max_shape_size):
         for col in range(max_shape_size):
             if selected_shape[row][col]:
-                board[block_y - 1 + row][block_x - 1 + col] = True
-                board_color[block_y - 1 + row][block_x - 1 + col] = color
-                block_placed += 1
+                board[board_y + row][board_x + col] = True
+                board_color[board_y + row][board_x + col] = color
+                num_block_placed += 1
 
-    return block_placed
+    return num_block_placed
+
+def place_shape(board_x, board_y):
+    global color_index
+    global shape_selection
+    global selected_shape
+    global lines_cleared
+    global streak
+    global score
+
+    num_block_placed = put_shape_in_board(board_x, board_y, color_index)
+    shape_selection.remove(selected_shape)
+    selected_shape = None
+
+    line_count = clear_lines()
+    lines_cleared += line_count
+    score += score_per_line[line_count] + score_per_streak[streak] + (num_block_placed * 10)
+    if (line_count > 0):
+        streak += 1
+    else:
+        streak = 0
+
+    if len(shape_selection) == 0:
+        color_index = (color_index + 1) % block_color_count
+        if random_shapes:
+            shape_selection = random.sample(shape_list, shape_selection_count)
+    else:
+        game_over = check_game_end()
 
 def clear_lines():
     lines_cleared = 0
@@ -152,15 +194,15 @@ def clear_lines():
 
     return lines_cleared
 
-def is_placeable(shape, block_x, block_y):
-    if block_x == 0 or block_y == 0:
+def is_placeable(shape, board_x, board_y):
+    if board_x < 0 or board_y < 0:
         return False
 
     for row in range(max_shape_size):
         for col in range(max_shape_size):
             if shape[row][col]:
                 try:
-                    if board[block_y - 1 + row][block_x - 1 + col]:
+                    if board[board_y + row][board_x + col]:
                         return False
                 except IndexError:
                     return False
@@ -171,21 +213,49 @@ def check_game_end():
     for shape in shape_selection:
         for row in range(board_size):
             for col in range(board_size):
-                if is_placeable(shape, 1 + row, 1 + col):
+                if is_placeable(shape, row, col):
                     return False
 
     return True
 
-shape_selection = []
-if random_shapes:
-    shape_selection = random.sample(shape_list, shape_selection_count)
+def scroll_shape_selection(val):
+    global scroll_x
 
-manual_shape_selection = not random_shapes
-scroll_x = 0
+    scroll_x += val * (max_shape_size + 1) * block_size
+    scroll_x = min(0, max(scroll_x, -(max_shape_size + 1) * block_size * (len(shape_list) - shape_selection_count)))
 
-color_index = 0
-running = True
-game_over = False
+def handle_event(event):
+    global shape_selection
+    global selected_shape
+    global color_index
+
+    if event.type == pygame.MOUSEBUTTONDOWN:
+        x, y = pygame.mouse.get_pos()
+        block_x, block_y = x // block_size, y // block_size
+        board_x, board_y = block_x - 1, block_y - 1
+        # Select manual shape
+        if not random_shapes and len(shape_selection) != shape_selection_count:
+            if event.button == 1:
+                index = get_manual_shape_index(block_x, block_y)
+                if (index != None):
+                    select_manual_shape(index)
+        else:
+            if event.button == 1:
+                # Select shape
+                if selected_shape == None:
+                    index = get_shape_index(block_x, block_y)
+                    if (index != None):
+                        select_shape(index)
+                # Place shape
+                elif is_placeable(selected_shape, board_x, board_y):
+                    place_shape(board_x, board_y)
+                    
+            # Remove selected block using right-click
+            elif event.button == 3:
+                selected_shape = None
+
+    if event.type == pygame.MOUSEWHEEL:
+        scroll_shape_selection(event.y)
 
 while running:
     # Get position in block size
@@ -198,51 +268,7 @@ while running:
             running = False
         if game_over:
             continue
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if manual_shape_selection:
-                if event.button == 1:
-                    shape = select_manual_shape(block_x, block_y)
-                    if shape != None:
-                        shape_selection.append(shape)
-                        if len(shape_selection) == shape_selection_count:
-                            manual_shape_selection = False
-                            game_over = check_game_end()
-            else:
-                if event.button == 1:
-                    # Select shape
-                    if selected_shape == None:
-                        selected_shape = select_shape(block_x, block_y)
-                    # Place shape
-                    elif is_placeable(selected_shape, block_x, block_y):
-                        block_placed = place_shape(block_x, block_y, color_index)
-                        shape_selection.remove(selected_shape)
-                        selected_shape = None
-
-                        line_count = clear_lines()
-                        lines_cleared += line_count
-                        score += score_per_line[line_count] + score_per_streak[streak] + (block_placed * 10)
-                        if (line_count > 0):
-                            streak += 1
-                        else:
-                            streak = 0
-
-                        if len(shape_selection) == 0:
-                            color_index = (color_index + 1) % block_color_count
-                            if random_shapes:
-                                shape_selection = random.sample(shape_list, shape_selection_count)
-                            else:
-                                manual_shape_selection = True
-                        else:
-                            game_over = check_game_end()
-                        
-
-                # Remove selected block using right-click
-                elif event.button == 3:
-                    selected_shape = None
-
-        if event.type == pygame.MOUSEWHEEL:
-            scroll_x += event.y * (max_shape_size + 1) * block_size
-            scroll_x = min(0, max(scroll_x, -(max_shape_size + 1) * block_size * (len(shape_list) - shape_selection_count)))
+        handle_event(event)
 
     # Drawing
     # Reset screen with background color
@@ -266,7 +292,7 @@ while running:
     # Draw selected shape
     if selected_shape != None:
         # Draw placement guide if placeable
-        if is_placeable(selected_shape, block_x, block_y):
+        if is_placeable(selected_shape, block_x - 1, block_y - 1):
             draw_shape(selected_shape, block_x * block_size, block_y * block_size, block_colors[color_index].lerp(background_color, 0.75))
 
         # Draw selected shape on cursor
