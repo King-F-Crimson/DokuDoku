@@ -73,7 +73,6 @@ else:
 scroll_x = 0
 
 color_index = 0
-running = True
 game_over = False
 
 pygame.init()
@@ -281,7 +280,7 @@ def draw():
     x, y = pygame.mouse.get_pos()
     block_x = x // block_size
     block_y = y // block_size
-    
+
     # Drawing
     # Reset screen with background color
     screen.fill(background_color)
@@ -340,14 +339,19 @@ def draw():
     # Update display
     pygame.display.flip()
 
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if game_over:
-            continue
-        handle_event(event)
+def run():
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if game_over:
+                continue
+            handle_event(event)
 
-    draw()
+        draw()
 
-pygame.quit()
+    pygame.quit()
+
+if __name__ == "__main__":
+    run()
