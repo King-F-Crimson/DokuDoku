@@ -237,6 +237,14 @@ def scroll_shape_selection(val):
     scroll_x += val * (max_shape_size + 1) * block_size
     scroll_x = min(0, max(scroll_x, -(max_shape_size + 1) * block_size * (len(shape_list) - shape_selection_count)))
 
+def step(action):
+    # Place shape
+    if action < 100:
+        place_shape(action % 10, action // 10)
+    # Choose shape
+    else:
+        select_shape(action - 100)
+
 def handle_event(event):
     global shape_selection
     global selected_shape
@@ -263,10 +271,10 @@ def handle_event(event):
                 if selected_shape == None:
                     index = get_shape_index(block_x, block_y)
                     if (index != None):
-                        select_shape(index)
+                        step(index + 100)
                 # Place shape
                 elif is_placeable(selected_shape, board_x, board_y):
-                    place_shape(board_x, board_y)
+                    step(board_x + board_y * 10)
                     
             # Remove selected block using right-click
             elif event.button == 3:
