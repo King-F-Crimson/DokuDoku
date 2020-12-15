@@ -276,19 +276,12 @@ def handle_event(event):
     if event.type == pygame.MOUSEWHEEL:
         scroll_shape_selection(event.y)
 
-while running:
+def draw():
     # Get position in block size
     x, y = pygame.mouse.get_pos()
     block_x = x // block_size
     block_y = y // block_size
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if game_over:
-            continue
-        handle_event(event)
-
+    
     # Drawing
     # Reset screen with background color
     screen.fill(background_color)
@@ -346,5 +339,15 @@ while running:
 
     # Update display
     pygame.display.flip()
+
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        if game_over:
+            continue
+        handle_event(event)
+
+    draw()
 
 pygame.quit()
