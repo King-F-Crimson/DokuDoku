@@ -121,7 +121,6 @@ class Game:
         return (block_x // (self.shape_size + 1)) + (-self.scroll_x // self.block_size // (self.shape_size + 1))
 
     def select_manual_shape(self, index):
-
         shape = shape_list[index]
 
         self.shape_selection.append(shape)
