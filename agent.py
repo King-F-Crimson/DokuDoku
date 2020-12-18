@@ -27,8 +27,8 @@ class Agent:
     def build_model(self, input_size, output_size):
         model = keras.Sequential()
         model.add(layers.Dense(input_size, input_dim=input_size, activation='relu'))
-        model.add(layers.Dense(64, activation="relu", name="dense_1"))
-        model.add(layers.Dense(64, activation="relu", name="dense_2"))
+        model.add(layers.Dense(200, activation="relu", name="dense_1"))
+        model.add(layers.Dense(200, activation="relu", name="dense_2"))
         model.add(layers.Dense(output_size, activation="relu", name="dense_3"))
         model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
         print(model.summary())
@@ -78,7 +78,7 @@ class Agent:
 
     def get_action(self):
         action = np.argmax(self.model.predict(self.get_state()))
-        print(action)
+        print("Action: ", action)
         return action
 
         q_table = self.get_q_table()
@@ -86,6 +86,9 @@ class Agent:
             return q_table.index(1)
         except ValueError:
             return 0
+
+    def set_reward(self, reward):
+        print("Reward: ", reward)
 
 if __name__ == "__main__":
     game = Game()

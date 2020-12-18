@@ -149,15 +149,16 @@ class Game:
     def place_shape(self, board_x, board_y):
         # Check if placeable
         if self.selected_shape == None or not self.is_placeable(self.selected_shape, board_x, board_y):
-            return False
+            return False, 0
 
         num_block_placed = self.put_shape_in_board(board_x, board_y, self.color_index)
         self.shape_selection.remove(self.selected_shape)
         self.selected_shape = None
 
         line_count = self.clear_lines()
+        score = self.score_per_line[line_count] + self.score_per_streak[self.streak] + (num_block_placed * 10)
         self.lines_cleared += line_count
-        self.score += self.score_per_line[line_count] + self.score_per_streak[self.streak] + (num_block_placed * 10)
+        self.score += score
         if (line_count > 0):
             self.streak += 1
         else:
@@ -173,7 +174,7 @@ class Game:
         else:
             self.game_over = self.check_game_end()
 
-        return True
+        return True, score
 
     def clear_lines(self):
         self.lines_cleared = 0
@@ -250,10 +251,18 @@ class Game:
     def step(self, action):
         # Place shape
         if action < 100:
-            self.place_shape(action % 10, action // 10)
+            success, score = self.place_shape(action % 10, action // 10)
+            if success:
+                return score
+            else:
+                return -1
         # Choose shape
         else:
-            self.select_shape(action - 100)
+            success = self.select_shape(action - 100)
+            if success:
+                return 1
+            else:
+                return -1
 
     def handle_player_input(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -363,7 +372,8 @@ class Game:
                     self.handle_player_input(event)
 
             if agent != None:
-                self.step(agent.get_action())
+                reward = self.step(agent.get_action())
+                agent.set_reward(reward)
 
             self.draw()
 
