@@ -255,14 +255,14 @@ class Game:
             if success:
                 return score
             else:
-                return -1
+                return -10
         # Choose shape
         else:
             success = self.select_shape(action - 100)
             if success:
                 return 1
             else:
-                return -1
+                return -10
 
     def handle_player_input(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -371,7 +371,7 @@ class Game:
                 if not self.game_over:
                     self.handle_player_input(event)
 
-            if agent != None:
+            if agent:
                 reward = self.step(agent.get_action())
                 agent.set_reward(reward)
 
@@ -379,6 +379,8 @@ class Game:
 
             if self.game_over:
                 time.sleep(1)
+                if agent:
+                    agent.on_restart()
                 self.start()
 
         pygame.quit()

@@ -26,6 +26,8 @@ class Agent:
 
         self.model = self.build_model(self.input_size, self.output_size)
 
+        self.reward = 0
+
     def build_model(self, input_size, output_size):
         model = keras.Sequential()
         model.add(layers.Dense(input_size, input_dim=input_size, activation='relu'))
@@ -86,11 +88,15 @@ class Agent:
             except ValueError:
                 return 0
         action = np.argmax(self.model.predict(self.get_state()))
-        print("Action: ", action)
+        # print("Action: ", action)
         return action
 
     def set_reward(self, reward):
-        print("Reward: ", reward)
+        self.reward += reward
+
+    def on_restart(self):
+        print(self.reward)
+        self.reward = 0
 
 if __name__ == "__main__":
     game = Game()
