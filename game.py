@@ -42,18 +42,7 @@ class Game:
             1450
         ]
 
-        # Initialize board
-        self.board = [[False for i in range(self.board_size)] for j in range(self.board_size)]   # Block is filled if True
-        self.board_color = [[0 for i in range(self.board_size)] for j in range(self.board_size)] # Block color
-
-        # Initialize shape selection
-        self.manual_shape_mode = not self.random_shapes
-        self.selected_shape = None
-        self.shape_selection = []
-        if self.random_shapes:
-            self.shape_selection = random.sample(shape_list, self.shape_selection_count)
-
-        # Initialize block colors
+        # Setup block colors
         self.block_colors = []
         self.block_color_count = 6
         color_range = 360 / self.block_color_count
@@ -61,12 +50,6 @@ class Game:
             color = pygame.Color(0, 0, 0)
             color.hsla = (i * color_range, 80, 50, 100)
             self.block_colors.append(color)
-
-        # Initialize scoring
-        self.lines_cleared = 0
-        self.score = 0
-        self.streak = 0
-        self.game_over = False
 
         # Setup display
         screen_width = self.block_size * max((self.board_size + 2), (self.shape_selection_count * (self.shape_size + 1) + 1))
@@ -78,11 +61,31 @@ class Game:
         self.scroll_x = 0
         self.color_index = 0
 
+        self.start()
+
         # Initialize pygame
         pygame.init()
         self.font = pygame.font.SysFont(None, 24)
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption("DokuDoku")
+
+    def start(self):
+        # Initialize board
+        self.board = [[False for i in range(self.board_size)] for j in range(self.board_size)]   # Block is filled if True
+        self.board_color = [[0 for i in range(self.board_size)] for j in range(self.board_size)] # Block color
+
+        # Initialize shape selection
+        self.manual_shape_mode = not self.random_shapes
+        self.selected_shape = None
+        self.shape_selection = []
+        if self.random_shapes:
+            self.shape_selection = random.sample(shape_list, self.shape_selection_count)
+
+        # Initialize scoring
+        self.lines_cleared = 0
+        self.score = 0
+        self.streak = 0
+        self.game_over = False
 
     def draw_shape(self, shape, left, top, color):
         for row in range(self.shape_size):
@@ -363,7 +366,12 @@ class Game:
 
             self.draw()
 
+            if self.game_over:
+                time.sleep(1)
+                self.start()
+
         pygame.quit()
+
 
 if __name__ == "__main__":
     random.seed(time.time())
