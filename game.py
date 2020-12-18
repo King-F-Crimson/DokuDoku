@@ -4,8 +4,6 @@ import time
 
 from shapes import shape_list
 
-random.seed(time.time())
-
 class Game:
     def __init__(self):
         # Board settings
@@ -362,5 +360,7 @@ class Game:
         pygame.quit()
 
 if __name__ == "__main__":
+    random.seed(time.time())
+
     game = Game()
     game.run()
