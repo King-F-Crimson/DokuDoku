@@ -1,3 +1,5 @@
+import random
+
 from game import Game
 
 class Agent:
@@ -6,11 +8,10 @@ class Agent:
         self.action_index = 0
 
     def get_action(self):
-        if self.action_index == 0:
-            self.action_index += 1
-            return 105
+        if self.game.selected_shape == None:
+            return random.randrange(100, 103)
         else:
-            return 0
+            return random.randrange(0, 100)
 
 
 if __name__ == "__main__":
