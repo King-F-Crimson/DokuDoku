@@ -224,12 +224,18 @@ class Game:
 
         return True
 
-    def check_game_end(self, ):
+    def is_shape_placeable(self, shape):
+        for row in range(self.board_size):
+            for col in range(self.board_size):
+                if self.is_placeable(shape, row, col):
+                    return True
+
+        return False
+
+    def check_game_end(self):
         for shape in self.shape_selection:
-            for row in range(self.board_size):
-                for col in range(self.board_size):
-                    if self.is_placeable(shape, row, col):
-                        return False
+            if self.is_shape_placeable(shape):
+                return False
 
         return True
 
