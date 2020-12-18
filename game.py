@@ -167,6 +167,7 @@ class Game:
             self.color_index = (self.color_index + 1) % self.block_color_count
             if self.random_shapes:
                 self.shape_selection = random.sample(shape_list, self.shape_selection_count)
+                self.game_over = self.check_game_end()
             else:
                 self.manual_shape_mode = True
         else:
