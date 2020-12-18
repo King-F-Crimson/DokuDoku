@@ -177,7 +177,7 @@ class Game:
         return True, score
 
     def clear_lines(self):
-        self.lines_cleared = 0
+        line_count = 0
 
         # Find rows to be cleared
         clear_rows = []
@@ -189,7 +189,7 @@ class Game:
                     break
             if row_clear:
                 clear_rows.append(row)
-                self.lines_cleared += 1
+                line_count += 1
 
         # Find cols to be cleared
         clear_cols = []
@@ -201,7 +201,7 @@ class Game:
                     break
             if col_clear:
                 clear_cols.append(col)
-                self.lines_cleared += 1
+                line_count += 1
 
         # Defer self, clearing so + shaped clear is cleared properly
         for row in clear_rows:
@@ -212,7 +212,7 @@ class Game:
             for row in range(self.board_size):
                 self.board[row][col] = False
 
-        return self.lines_cleared
+        return line_count
 
     def is_placeable(self, shape, board_x, board_y):
         if board_x < 0 or board_y < 0:
