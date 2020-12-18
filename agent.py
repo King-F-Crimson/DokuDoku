@@ -11,7 +11,8 @@ class Agent:
         q_table = [0] * 103
         if self.game.selected_shape == None:
             for i in range(len(self.game.shape_selection)):
-                q_table[100 + i] = 1
+                if self.game.is_shape_placeable(self.game.shape_selection[i]):
+                    q_table[100 + i] = 1
         else:
             for x in range(10):
                 for y in range(10):
