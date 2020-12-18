@@ -18,4 +18,5 @@ model.add(layers.Dense(output_size, activation="relu", name="dense_3"))
 model.compile(loss='mse', optimizer=keras.optimizers.RMSprop())
 
 model.summary()
-keras.utils.plot_model(model, "my_first_model.png")
+
+# model.save("model")
