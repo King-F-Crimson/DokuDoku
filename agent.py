@@ -19,6 +19,8 @@ class Agent:
     def __init__(self, game):
         self.game = game
 
+        self.exploration_rate = 0.25
+
         self.input_size = (game.board_size ** 2) + ((game.shape_size ** 2) * (game.shape_selection_count + 1))
         self.output_size = (game.board_size ** 2) + game.shape_selection_count
 
@@ -62,30 +64,30 @@ class Agent:
 
         return np.array(state).reshape(-1, self.input_size)
 
-    def get_q_table(self):
-        q_table = [0] * 103
+    def get_valid_options(self):
+        actions = [False] * 103
         if self.game.selected_shape == None:
             for i in range(len(self.game.shape_selection)):
                 if self.game.is_shape_placeable(self.game.shape_selection[i]):
-                    q_table[100 + i] = 1
+                    actions[100 + i] = True
         else:
             for x in range(10):
                 for y in range(10):
                     if self.game.is_placeable(self.game.selected_shape, x, y):
-                        q_table[x + (y * 10)] = 1
+                        actions[x + (y * 10)] = True
 
-        return q_table
+        return actions
 
     def get_action(self):
+        # Do random valid actions
+        if np.random.rand() <= self.exploration_rate:
+            try:
+                return self.get_valid_options().index(True)
+            except ValueError:
+                return 0
         action = np.argmax(self.model.predict(self.get_state()))
         print("Action: ", action)
         return action
-
-        q_table = self.get_q_table()
-        try:
-            return q_table.index(1)
-        except ValueError:
-            return 0
 
     def set_reward(self, reward):
         print("Reward: ", reward)
