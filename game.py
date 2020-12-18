@@ -106,7 +106,12 @@ class Game:
         return block_x // (self.shape_size + 1)
 
     def select_shape(self, index):
-        self.selected_shape = self.shape_selection[index]
+        try:
+            self.selected_shape = self.shape_selection[index]
+        except IndexError:
+            return False
+        else:
+            return True
 
     def get_manual_shape_index(self, block_x, block_y):
         # Check if cursor y is out of range
@@ -141,6 +146,10 @@ class Game:
         return num_block_placed
 
     def place_shape(self, board_x, board_y):
+        # Check if placeable
+        if self.selected_shape == None or not self.is_placeable(self.selected_shape, board_x, board_y):
+            return False
+
         num_block_placed = self.put_shape_in_board(board_x, board_y, self.color_index)
         self.shape_selection.remove(self.selected_shape)
         self.selected_shape = None
@@ -161,6 +170,8 @@ class Game:
                 self.manual_shape_mode = True
         else:
             self.game_over = self.check_game_end()
+
+        return True
 
     def clear_lines(self):
         self.lines_cleared = 0
@@ -334,7 +345,7 @@ class Game:
         # Update display
         pygame.display.flip()
 
-    def run(self):
+    def run(self, agent=None):
         self.running = True
         while self.running:
             for event in pygame.event.get():
@@ -342,6 +353,9 @@ class Game:
                     self.running = False
                 if not self.game_over:
                     self.handle_player_input(event)
+
+            if agent != None:
+                self.step(agent.get_action())
 
             self.draw()
 
