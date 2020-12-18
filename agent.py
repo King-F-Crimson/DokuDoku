@@ -1,15 +1,17 @@
+from game import Game
+
 import random
 
-from game import Game
-from build_model import build_model
+import numpy as np
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
 from keras.optimizers import Adam
 
-import numpy as np
-
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+
 physical_devices = tf.config.list_physical_devices('GPU') 
 tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
@@ -20,7 +22,18 @@ class Agent:
         self.input_size = (game.board_size ** 2) + ((game.shape_size ** 2) * (game.shape_selection_count + 1))
         self.output_size = (game.board_size ** 2) + game.shape_selection_count
 
-        self.model = build_model(self.input_size, self.output_size)
+        self.model = self.build_model(self.input_size, self.output_size)
+
+    def build_model(self, input_size, output_size):
+        model = keras.Sequential()
+        model.add(layers.Dense(input_size, input_dim=input_size, activation='relu'))
+        model.add(layers.Dense(64, activation="relu", name="dense_1"))
+        model.add(layers.Dense(64, activation="relu", name="dense_2"))
+        model.add(layers.Dense(output_size, activation="relu", name="dense_3"))
+        model.compile(optimizer="Adam", loss="mse", metrics=["mae"])
+        print(model.summary())
+
+        return model
 
     def get_state(self):
         state = []
