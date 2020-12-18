@@ -18,7 +18,7 @@ class Game:
         self.border_color = pygame.Color(240, 240, 240)
 
         # Shape selection settings
-        self.random_shapes = False      # Set to False to choose the shapes manually
+        self.random_shapes = True      # Set to False to choose the shapes manually
         self.shape_selection_count = 3
 
         # Scoring settings
@@ -236,7 +236,7 @@ class Game:
         else:
             self.select_shape(action - 100)
 
-    def handle_event(self, event):
+    def handle_player_input(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             block_x, block_y = x // self.block_size, y // self.block_size
@@ -340,9 +340,8 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                if self.game_over:
-                    continue
-                self.handle_event(event)
+                if not self.game_over:
+                    self.handle_player_input(event)
 
             self.draw()
 
