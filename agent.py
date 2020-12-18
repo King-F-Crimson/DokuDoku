@@ -7,12 +7,25 @@ class Agent:
         self.game = game
         self.action_index = 0
 
-    def get_action(self):
+    def get_state(self):
+        q_table = [0] * 103
         if self.game.selected_shape == None:
-            return random.randrange(100, 103)
+            for i in range(len(self.game.shape_selection)):
+                q_table[100 + i] = 1
         else:
-            return random.randrange(0, 100)
+            for x in range(10):
+                for y in range(10):
+                    if self.game.is_placeable(self.game.selected_shape, x, y):
+                        q_table[x + (y * 10)] = 1
 
+        return q_table
+
+    def get_action(self):
+        q_table = self.get_state()
+        try:
+            return q_table.index(1)
+        except ValueError:
+            return 0
 
 if __name__ == "__main__":
     game = Game()
