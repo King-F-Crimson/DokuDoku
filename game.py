@@ -298,7 +298,7 @@ class Game:
         if event.type == pygame.MOUSEWHEEL:
             self.scroll_shape_selection(event.y)
 
-    def draw(self, ):
+    def draw(self):
         # Get position in block size
         x, y = pygame.mouse.get_pos()
         block_x = x // self.block_size
