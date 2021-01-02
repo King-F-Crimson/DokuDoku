@@ -28,6 +28,10 @@ class Agent:
 
         self.reward = 0
 
+        self.state_history  = []
+        self.action_history = []
+        self.reward_history = []
+
     def build_model(self, input_size, output_size):
         model = keras.Sequential()
         model.add(layers.Dense(input_size, input_dim=input_size, activation='relu'))
@@ -81,22 +85,41 @@ class Agent:
         return actions
 
     def get_action(self):
+        state = self.get_state()
+
         # Do random valid actions
         if np.random.rand() <= self.exploration_rate:
             try:
-                return self.get_valid_options().index(True)
+                action = self.get_valid_options().index(True)
             except ValueError:
-                return 0
-        action = np.argmax(self.model.predict(self.get_state()))
-        # print("Action: ", action)
+                action = 0
+        else:
+            action = np.argmax(self.model.predict(state))
+        
+        self.state_history.append(state)
+        self.action_history.append(action)
+
         return action
 
     def set_reward(self, reward):
         self.reward += reward
 
+        self.reward_history.append(reward)
+
     def on_restart(self):
         print(self.reward)
         self.reward = 0
+
+        for i in range(len(self.action_history)):
+            state = self.state_history[i]
+
+            target_f = self.model.predict(state)
+            target_f[0][self.action_history[i]] = self.reward_history[i]
+            self.model.fit(state, target_f)
+
+        self.reward_history = []
+        self.action_history = []
+        self.state_history = []
 
 if __name__ == "__main__":
     game = Game()
