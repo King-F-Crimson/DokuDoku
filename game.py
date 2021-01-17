@@ -61,6 +61,9 @@ class Game:
         self.scroll_x = 0
         self.color_index = 0
 
+        # Initialize invalid action count
+        self.invalid_actions = 0
+
         self.start()
 
         # Initialize pygame
@@ -255,6 +258,7 @@ class Game:
             if success:
                 return score
             else:
+                self.invalid_actions += 1
                 return -10
         # Choose shape
         else:
@@ -262,6 +266,7 @@ class Game:
             if success:
                 return 1
             else:
+                self.invalid_actions += 1
                 return -10
 
     def handle_player_input(self, event):
@@ -362,7 +367,7 @@ class Game:
         # Update display
         pygame.display.flip()
 
-    def run(self, agent=None):
+    def run(self, agent=None, log=None):
         self.running = True
         while self.running:
             for event in pygame.event.get():
@@ -378,7 +383,9 @@ class Game:
             self.draw()
 
             if self.game_over:
-                time.sleep(1)
+                if log:
+                    log.write("Score: {}\tLines: {}\tInvalid actions: {}\n".format(self.score, self.lines_cleared, self.invalid_actions))
+                self.invalid_actions = 0
                 if agent:
                     agent.on_restart()
                 self.start()

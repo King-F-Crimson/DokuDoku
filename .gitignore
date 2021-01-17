@@ -1,1 +1,4 @@
 __pycache__/*
+log.txt
+model/*
+model_old/*

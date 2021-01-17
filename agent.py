@@ -1,5 +1,6 @@
 from game import Game
 
+import signal
 import random
 
 import numpy as np
@@ -24,7 +25,12 @@ class Agent:
         self.input_size = (game.board_size ** 2) + ((game.shape_size ** 2) * (game.shape_selection_count + 1))
         self.output_size = (game.board_size ** 2) + game.shape_selection_count
 
-        self.model = self.build_model(self.input_size, self.output_size)
+        # Try to load existing model.
+        # Create new model if one does not exist.
+        try:
+            self.model = keras.models.load_model("model")
+        except IOError:
+            self.model = self.build_model(self.input_size, self.output_size)
 
         self.reward = 0
 
@@ -107,7 +113,6 @@ class Agent:
         self.reward_history.append(reward)
 
     def on_restart(self):
-        print(self.reward)
         self.reward = 0
 
         for i in range(len(self.action_history)):
@@ -122,7 +127,15 @@ class Agent:
         self.state_history = []
 
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, signal.default_int_handler), 
+
+    log = open("log.txt", 'a')
     game = Game()
     agent = Agent(game)
 
-    game.run(agent)
+    try:
+        game.run(agent, log)
+    except KeyboardInterrupt:
+        agent.model.save("model")
+
+    log.close()
