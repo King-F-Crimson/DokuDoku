@@ -206,7 +206,7 @@ class Game:
                 clear_cols.append(col)
                 line_count += 1
 
-        # Defer self, clearing so + shaped clear is cleared properly
+        # Defer clearing so + shaped clear is cleared properly
         for row in clear_rows:
             for col in range(self.board_size):
                 self.board[row][col] = False
