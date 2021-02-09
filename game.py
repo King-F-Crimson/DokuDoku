@@ -111,11 +111,15 @@ class Game:
 
     def select_shape(self, index):
         try:
-            self.selected_shape = self.shape_selection[index]
+            shape = self.shape_selection[index]
         except IndexError:
             return False
         else:
-            return True
+            if (self.is_shape_placeable(shape)):
+                self.selected_shape = shape
+                return True
+            else:
+                return False
 
     def get_manual_shape_index(self, block_x, block_y):
         # Check if cursor y is out of range
