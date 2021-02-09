@@ -76,7 +76,7 @@ class Agent:
 
         return np.array(state).reshape(-1, self.input_size)
 
-    def get_valid_options(self):
+    def get_valid_actions(self):
         actions = [False] * 103
         if self.game.selected_shape == None:
             for i in range(len(self.game.shape_selection)):
@@ -93,14 +93,16 @@ class Agent:
     def get_action(self):
         state = self.get_state()
 
-        # Do random valid actions
-        if np.random.rand() <= self.exploration_rate:
+        valid_actions = self.get_valid_actions()
+
+        action = np.argmax(self.model.predict(state))
+
+        # Do random valid actions if action is invalid or exploring
+        if np.random.rand() <= self.exploration_rate or not valid_actions[action]:
             try:
-                action = self.get_valid_options().index(True)
+                action = valid_actions.index(True)
             except ValueError:
                 action = 0
-        else:
-            action = np.argmax(self.model.predict(state))
         
         self.state_history.append(state)
         self.action_history.append(action)
