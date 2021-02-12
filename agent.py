@@ -34,7 +34,8 @@ class Agent:
 
         self.reward = 0
 
-        self.state_history  = []
+        self.state_history = []
+        self.prediction_history = []
         self.action_history = []
         self.reward_history = []
 
@@ -95,16 +96,23 @@ class Agent:
 
         valid_actions = self.get_valid_actions()
 
-        action = np.argmax(self.model.predict(state))
+        prediction = self.model.predict(state)
+
+        for i, action in enumerate(valid_actions):
+            if not action:
+                prediction[0][i] = -10
+
+        action = np.argmax(prediction)
 
         # Do random valid actions if action is invalid or exploring
-        if np.random.rand() <= self.exploration_rate or not valid_actions[action]:
-            try:
-                action = valid_actions.index(True)
-            except ValueError:
-                action = 0
+        # if np.random.rand() <= self.exploration_rate or not valid_actions[action]:
+        #     try:
+        #         action = valid_actions.index(True)
+        #     except ValueError:
+        #         action = 0
         
         self.state_history.append(state)
+        self.prediction_history.append(prediction)
         self.action_history.append(action)
 
         return action
@@ -119,14 +127,15 @@ class Agent:
 
         for i in range(len(self.action_history)):
             state = self.state_history[i]
+            prediction = self.prediction_history[i]
 
-            target_f = self.model.predict(state)
-            target_f[0][self.action_history[i]] = self.reward_history[i]
-            self.model.fit(state, target_f)
+            prediction[0][self.action_history[i]] = self.reward_history[i]
+            self.model.fit(state, prediction)
 
         self.reward_history = []
         self.action_history = []
         self.state_history = []
+        self.prediction_history = []
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal.default_int_handler), 
@@ -139,5 +148,6 @@ if __name__ == "__main__":
         game.run(agent, log)
     except KeyboardInterrupt:
         agent.model.save("model")
+        print("Saving model")
 
     log.close()
