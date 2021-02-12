@@ -417,7 +417,8 @@ class Game:
                     self.invalid_actions = 0
                     if agent:
                         agent.on_restart()
-                    self.start()
+                        self.start()
+
         except KeyboardInterrupt:
             if log:
                 log.write("Finished at {}\n".format(str(datetime.datetime.now())))
