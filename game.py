@@ -143,14 +143,26 @@ class Game:
             self.game_over = self.check_game_end()
             self.manual_shape_mode = False
 
-    def put_shape_in_board(self, board_x, board_y, color):
+    def put_shape_in_board(self, shape, board_x, board_y, color=None):
         num_block_placed = 0
 
         for row in range(self.shape_size):
             for col in range(self.shape_size):
-                if self.selected_shape[row][col]:
+                if shape[row][col]:
                     self.board[board_y + row][board_x + col] = True
-                    self.board_color[board_y + row][board_x + col] = color
+                    if color:
+                        self.board_color[board_y + row][board_x + col] = color
+                    num_block_placed += 1
+
+        return num_block_placed
+
+    def remove_shape_from_board(self, shape, board_x, board_y):
+        num_block_placed = 0
+
+        for row in range(self.shape_size):
+            for col in range(self.shape_size):
+                if shape[row][col]:
+                    self.board[board_y + row][board_x + col] = False
                     num_block_placed += 1
 
         return num_block_placed
@@ -160,7 +172,7 @@ class Game:
         if self.selected_shape == None or not self.is_placeable(self.selected_shape, board_x, board_y):
             return False, 0
 
-        num_block_placed = self.put_shape_in_board(board_x, board_y, self.color_index)
+        num_block_placed = self.put_shape_in_board(self.selected_shape, board_x, board_y, self.color_index)
         self.shape_selection.remove(self.selected_shape)
         self.selected_shape = None
 
@@ -185,7 +197,7 @@ class Game:
 
         return True, score
 
-    def clear_lines(self):
+    def get_cleared_lines(self):
         line_count = 0
 
         # Find rows to be cleared
@@ -211,6 +223,11 @@ class Game:
             if col_clear:
                 clear_cols.append(col)
                 line_count += 1
+
+        return line_count, clear_rows, clear_cols
+
+    def clear_lines(self):
+        line_count, clear_rows, clear_cols = self.get_cleared_lines()
 
         # Defer clearing so + shaped clear is cleared properly
         for row in clear_rows:

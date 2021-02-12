@@ -91,6 +91,17 @@ class Agent:
 
         return actions
 
+    def predict_action_score(self, prediction):
+        for x in range(10):
+            for y in range(10):
+                if self.game.is_placeable(self.game.selected_shape, x, y):
+                    self.game.put_shape_in_board(self.game.selected_shape, x, y)
+                    line_count, clear_rows, clear_cols = self.game.get_cleared_lines()
+                    self.game.remove_shape_from_board(self.game.selected_shape, x, y)
+
+                    if line_count > 0:
+                        prediction[0][x + (y * 10)] += line_count * 100
+
     def get_action(self):
         state = self.get_state()
 
@@ -101,6 +112,9 @@ class Agent:
         for i, action in enumerate(valid_actions):
             if not action:
                 prediction[0][i] = -10
+
+        if self.game.selected_shape:
+            self.predict_action_score(prediction)
 
         action = np.argmax(prediction)
 
