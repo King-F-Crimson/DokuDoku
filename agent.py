@@ -104,10 +104,10 @@ class Agent:
 
         action = np.argmax(prediction)
 
-        # Do random valid actions if action is invalid or exploring
-        # if np.random.rand() <= self.exploration_rate or not valid_actions[action]:
+        # Do random valid actions when exploring
+        # if np.random.rand() <= self.exploration_rate:
         #     try:
-        #         action = valid_actions.index(True)
+        #         action = random.choice([i for i, a in enumerate(valid_actions) if a])
         #     except ValueError:
         #         action = 0
         
