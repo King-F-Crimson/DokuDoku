@@ -20,7 +20,7 @@ class Agent:
     def __init__(self, game):
         self.game = game
 
-        self.exploration_rate = 0.25
+        self.exploration_rate = 0
 
         self.input_size = (game.board_size ** 2) + ((game.shape_size ** 2) * (game.shape_selection_count + 1))
         self.output_size = (game.board_size ** 2) + game.shape_selection_count
@@ -105,11 +105,11 @@ class Agent:
         action = np.argmax(prediction)
 
         # Do random valid actions when exploring
-        # if np.random.rand() <= self.exploration_rate:
-        #     try:
-        #         action = random.choice([i for i, a in enumerate(valid_actions) if a])
-        #     except ValueError:
-        #         action = 0
+        if np.random.rand() <= self.exploration_rate:
+            try:
+                action = random.choice([i for i, a in enumerate(valid_actions) if a])
+            except ValueError:
+                action = 0
         
         self.state_history.append(state)
         self.prediction_history.append(prediction)
@@ -129,7 +129,7 @@ class Agent:
             state = self.state_history[i]
             prediction = self.prediction_history[i]
 
-            discount_factor = 0.8
+            discount_factor = 0.99
             discounted_future_reward = 0
             for j, reward in enumerate(self.reward_history[i:]):
                 discounted_future_reward += reward * pow(discount_factor, i)
