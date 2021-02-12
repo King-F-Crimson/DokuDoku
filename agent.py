@@ -129,7 +129,12 @@ class Agent:
             state = self.state_history[i]
             prediction = self.prediction_history[i]
 
-            prediction[0][self.action_history[i]] = self.reward_history[i]
+            discount_factor = 0.8
+            discounted_future_reward = 0
+            for j, reward in enumerate(self.reward_history[i:]):
+                discounted_future_reward += reward * pow(discount_factor, i)
+            
+            prediction[0][self.action_history[i]] = self.reward_history[i] + discounted_future_reward
             self.model.fit(state, prediction)
 
         self.reward_history = []
