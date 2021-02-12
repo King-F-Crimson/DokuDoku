@@ -1,6 +1,8 @@
 import pygame
 import random
 import time
+import datetime
+import statistics
 
 from shapes import shape_list
 
@@ -372,29 +374,39 @@ class Game:
         pygame.display.flip()
 
     def run(self, agent=None, log=None):
-        self.running = True
-        while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                if not self.game_over:
-                    self.handle_player_input(event)
+        scores = []
+        try:
+            if log:
+                log.write("Started at {}\n".format(str(datetime.datetime.now())))
 
-            if agent:
-                reward = self.step(agent.get_action())
-                agent.set_reward(reward)
+            self.running = True
+            while self.running:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        self.running = False
+                    if not self.game_over:
+                        self.handle_player_input(event)
 
-            self.draw()
-
-            if self.game_over:
-                if log:
-                    log.write("Score: {}\tLines: {}\tInvalid actions: {}\n".format(self.score, self.lines_cleared, self.invalid_actions))
-                self.invalid_actions = 0
                 if agent:
-                    agent.on_restart()
-                self.start()
+                    reward = self.step(agent.get_action())
+                    agent.set_reward(reward)
 
-        pygame.quit()
+                self.draw()
+
+                if self.game_over:
+                    scores.append(self.score)
+                    if log:
+                        log.write("Score: {}\tLines: {}\tInvalid actions: {}\n".format(self.score, self.lines_cleared, self.invalid_actions))
+                    self.invalid_actions = 0
+                    if agent:
+                        agent.on_restart()
+                    self.start()
+        except KeyboardInterrupt:
+            if log:
+                log.write("Finished at {}\n".format(str(datetime.datetime.now())))
+                log.write("Iterations: {}\tAverage score: {}\n\n".format(len(scores), statistics.mean(scores)))
+
+            pygame.quit()
 
 
 if __name__ == "__main__":

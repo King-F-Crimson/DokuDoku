@@ -149,10 +149,9 @@ if __name__ == "__main__":
     game = Game()
     agent = Agent(game)
 
-    try:
-        game.run(agent, log)
-    except KeyboardInterrupt:
-        agent.model.save("model")
-        print("Saving model")
+    game.run(agent, log)
+
+    agent.model.save("model")
+    print("Saving model")
 
     log.close()
